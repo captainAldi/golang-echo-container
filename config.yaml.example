@@ -1,0 +1,18 @@
+database:
+  type: "mysql" # mysql, postgres, mongodb
+  host: "localhost"
+  name: ""
+  auth_source: "admin" # for MonngoDB
+  user: ""
+  pass: ""
+  port: 3306
+redis:
+  host: "localhost"
+  user: ""
+  pass: ""
+  port: 6379
+rabbitmq:
+  host: "localhost"
+  user: "guest"
+  pass: "guest"
+  port: 5672
