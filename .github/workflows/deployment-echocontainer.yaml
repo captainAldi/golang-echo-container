@@ -52,4 +52,4 @@ jobs:
         END
     - name: Deploy
       run: |
-        kubectl -n renaldi set image deployment/gocheck gocheck=captainaldi/golang-echo-container:v-0.0.2 --record
+        kubectl --kubeconfig ./kubeconfig -n renaldi set image deployment/gocheck gocheck=captainaldi/golang-echo-container:v-0.0.2 --record
