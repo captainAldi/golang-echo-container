@@ -33,7 +33,23 @@ jobs:
         with:
           context: .
           file: ./Dockerfile
-          tags: captainaldi/golang-echo-container:v-0.0.1
+          tags: captainaldi/golang-echo-container:v-0.0.2
           push: true
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache
+      
+  deploy_to_rara:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Setup GCP / Kubectl
+      uses: google-github-actions/setup-gcloud@v0.2.1
+      with:
+        version: "290.0.1"
+    - name: Setup Kubeconfig
+      run: |
+        cat >> ./kubeconfig <<END 
+        ${{ secrets.KUBECONFIG_RARA }}
+        END
+    - name: Deploy
+      run: |
+        kubectl -n renaldi set image deployment/gocheck gocheck=captainaldi/golang-echo-container:v-0.0.2 --record

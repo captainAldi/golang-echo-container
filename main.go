@@ -72,15 +72,19 @@ func main() {
 
 		// Struct JSON Response
 		type Connection struct {
-			Db_status       string `json:"db_status"`
-			Redis_status    string `json:"redis_status"`
-			Rabbitmq_status string `json:"rabbitmq_status"`
+			Db_status            string `json:"db_status"`
+			Redis_status         string `json:"redis_status"`
+			Rabbitmq_status      string `json:"rabbitmq_status"`
+			Version_status       string `json:"version_status"`
+			Latest_update_status string `json:"latest_update_status"`
 		}
 
 		connectionStatus := &Connection{
-			Db_status:       checkingDBStat,
-			Redis_status:    connection.CheckRedis(redis_host, redis_port, redis_user, redis_pass),
-			Rabbitmq_status: connection.CheckRabbitMQ(rabbitmq_host, rabbitmq_port, rabbitmq_user, rabbitmq_pass),
+			Db_status:            checkingDBStat,
+			Redis_status:         connection.CheckRedis(redis_host, redis_port, redis_user, redis_pass),
+			Rabbitmq_status:      connection.CheckRabbitMQ(rabbitmq_host, rabbitmq_port, rabbitmq_user, rabbitmq_pass),
+			Version_status:       "v0.0.2",
+			Latest_update_status: "CI/CD to Rara",
 		}
 		return c.JSON(http.StatusOK, connectionStatus)
 	})

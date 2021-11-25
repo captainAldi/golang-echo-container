@@ -1,0 +1,11 @@
+version: "3"
+services: 
+
+  go-checker:
+    image: captainaldi/golang-echo-container:v-0.0.1
+    container_name: go-checker-container
+    restart: unless-stopped
+    volumes:
+      - ./config.yaml:/golang-echo-container/config.yaml
+    ports:
+      - 5001:1223
