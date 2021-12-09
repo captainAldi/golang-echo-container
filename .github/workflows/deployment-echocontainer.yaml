@@ -33,7 +33,7 @@ jobs:
         with:
           context: .
           file: ./Dockerfile
-          tags: captainaldi/golang-echo-container:v-0.0.2
+          tags: captainaldi/golang-echo-container:v-0.0.3
           push: true
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache
@@ -53,4 +53,4 @@ jobs:
         END
     - name: Deploy
       run: |
-        kubectl --kubeconfig ./kubeconfig -n renaldi set image deployment/gocheck gocheck=captainaldi/golang-echo-container:v-0.0.2 --record
+        kubectl --kubeconfig ./kubeconfig -n renaldi set image deployment/gocheck gocheck=captainaldi/golang-echo-container:v-0.0.3 --record

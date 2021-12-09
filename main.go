@@ -47,6 +47,11 @@ func main() {
 	rabbitmq_user := viper.GetString("rabbitmq.user")
 	rabbitmq_pass := viper.GetString("rabbitmq.pass")
 
+	// k8s Deployment
+	// k8s_kubeconfig := viper.GetString("k8s_cluster.kube_config_path")
+	k8s_namespace := viper.GetString("k8s_cluster.namespace")
+	k8s_deployment := viper.GetString("k8s_cluster.deployment")
+
 	// Create echo
 	e := echo.New()
 
@@ -56,18 +61,47 @@ func main() {
 
 	// Routes
 	e.GET("/health", func(c echo.Context) error {
-
-		// Check DB Type
+		// Init Variable Used
 		checkingDBStat := "status"
+		checkingRedisStat := "status"
+		checkingRabbitMqStat := "status"
+		checkingK8sImageVersion := "status"
 
-		if db_type == "mysql" {
-			checkingDBStat = connection.CheckMySQL(db_user, db_pass, db_name, db_host, db_port)
-		} else if db_type == "postgres" {
-			checkingDBStat = connection.CheckPostgreSQL(db_user, db_pass, db_name, db_host, db_port)
-		} else if db_type == "mongo" {
-			checkingDBStat = connection.CheckMongo(db_user, db_pass, db_name, db_host, db_port, db_auth_source)
+		// Check DB Need to be Scan or Not
+		if db_host != "" {
+			// Check DB Type
+			if db_type == "mysql" {
+				checkingDBStat = connection.CheckMySQL(db_user, db_pass, db_name, db_host, db_port)
+			} else if db_type == "postgres" {
+				checkingDBStat = connection.CheckPostgreSQL(db_user, db_pass, db_name, db_host, db_port)
+			} else if db_type == "mongo" {
+				checkingDBStat = connection.CheckMongo(db_user, db_pass, db_name, db_host, db_port, db_auth_source)
+			} else {
+				checkingDBStat = fmt.Sprintf("Type: [%s] Not Supported !", db_type)
+			}
 		} else {
-			checkingDBStat = fmt.Sprintf("Type: [%s] Not Supported !", db_type)
+			checkingDBStat = "Not Checked"
+		}
+
+		// Check Redis Need to be Scan or Not
+		if redis_host != "" {
+			checkingRedisStat = connection.CheckRedis(redis_host, redis_port, redis_user, redis_pass)
+		} else {
+			checkingRedisStat = "Not Checked"
+		}
+
+		// Check Redis Need to be Scan or Not
+		if rabbitmq_host != "" {
+			checkingRabbitMqStat = connection.CheckRabbitMQ(rabbitmq_host, rabbitmq_port, rabbitmq_user, rabbitmq_pass)
+		} else {
+			checkingRabbitMqStat = "Not Checked"
+		}
+
+		// Check Image Version Need to be Scan or Not
+		if k8s_namespace != "" {
+			checkingK8sImageVersion = connection.CheckImageVersion(k8s_namespace, k8s_deployment)
+		} else {
+			checkingK8sImageVersion = "Not Checked"
 		}
 
 		// Struct JSON Response
@@ -75,16 +109,18 @@ func main() {
 			Db_status            string `json:"db_status"`
 			Redis_status         string `json:"redis_status"`
 			Rabbitmq_status      string `json:"rabbitmq_status"`
+			K8simage_status      string `json:"k8simage_status"`
 			Version_status       string `json:"version_status"`
 			Latest_update_status string `json:"latest_update_status"`
 		}
 
 		connectionStatus := &Connection{
 			Db_status:            checkingDBStat,
-			Redis_status:         connection.CheckRedis(redis_host, redis_port, redis_user, redis_pass),
-			Rabbitmq_status:      connection.CheckRabbitMQ(rabbitmq_host, rabbitmq_port, rabbitmq_user, rabbitmq_pass),
-			Version_status:       "v0.0.2",
-			Latest_update_status: "CI/CD to Rara",
+			Redis_status:         checkingRedisStat,
+			Rabbitmq_status:      checkingRabbitMqStat,
+			K8simage_status:      checkingK8sImageVersion,
+			Version_status:       "v0.0.3",
+			Latest_update_status: "Add condition for checking and Get Image Version in k8s",
 		}
 		return c.JSON(http.StatusOK, connectionStatus)
 	})

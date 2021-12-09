@@ -9,6 +9,10 @@ import (
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 
+	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/client-go/kubernetes"
+	"k8s.io/client-go/rest"
+
 	"github.com/go-redis/redis/v8"
 
 	"go.mongodb.org/mongo-driver/mongo"
@@ -124,4 +128,35 @@ func CheckRabbitMQ(rabbitMqHost, rabbitMqPort, rabbitMqUser, rabbitMqPass string
 	}
 
 	return statusRabbitMQ
+}
+
+func CheckImageVersion(k8sNamespace, k8sDeploymentName string) string {
+	statusImageVersion := "vx.x.x"
+
+	// Create in-cluster config
+	config, err := rest.InClusterConfig()
+	if err != nil {
+		statusImageVersion = fmt.Sprintf("Error: %s", err)
+	}
+
+	// Create out cluster config
+	// config, err := clientcmd.BuildConfigFromFlags("", k8sKubeConfig)
+	// if err != nil {
+	// 	statusImageVersion = fmt.Sprintf("Error: %s", err)
+	// }
+
+	// creates the clientset
+	clientset, err := kubernetes.NewForConfig(config)
+	if err != nil {
+		statusImageVersion = fmt.Sprintf("Error: %s", err)
+	}
+
+	// Cek Deployment
+	deployment, _ := clientset.AppsV1().Deployments(k8sNamespace).Get(context.TODO(), k8sDeploymentName, v1.GetOptions{})
+
+	// Get Image Version
+	statusImageVersion = deployment.Spec.Template.Spec.Containers[0].Image
+
+	return statusImageVersion
+
 }

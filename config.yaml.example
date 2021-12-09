@@ -1,18 +1,22 @@
 database:
   type: "mysql" # mysql, postgres, mongodb
-  host: "localhost"
+  host: "localhost" # Leave it blank if Not want to check
   name: ""
   auth_source: "admin" # for MonngoDB
   user: ""
   pass: ""
   port: 3306
 redis:
-  host: "localhost"
+  host: "localhost" # Leave it blank if Not want to check
   user: ""
   pass: ""
   port: 6379
 rabbitmq:
-  host: "localhost"
+  host: "localhost" # Leave it blank if Not want to check
   user: "guest"
   pass: "guest"
   port: 5672
+k8s_cluster:
+  namespace: "" # Leave it blank if Not want to check
+  deployment: ""
+  kube_config_path: "" # optional 
